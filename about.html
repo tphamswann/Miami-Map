@@ -1,0 +1,115 @@
+<!DOCTYPE HTML>
+
+<html>
+	<head>
+		<title>Miami-Dade Environmental Justice Map</title>
+		<link rel="icon" href="city-map.png">
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+		<noscript><link rel="stylesheet" href="assets/css/noscript.css" /></noscript>
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper" class="fade-in">
+
+				<!-- Intro -->
+					<div id="intro">
+						<h1>EJ Miami-Dade</h1>
+						<p>Interactively Mapping Environmental Justice in Miami-Dade County</p>
+						<ul class="actions">
+							<li><a href="#header" class="button icon solid solo fa-arrow-down scrolly">Continue</a></li>
+						</ul>
+					</div>
+
+				<!-- Header -->
+					<header id="header">
+						<a href="miami.html" class="logo">EJ Miami-Dade</a>
+					</header>
+
+				<!-- Nav -->
+					<nav id="nav">
+						<ul class="links">
+							<li class="active"><a href="about.html">Methods</a></li>
+							<li><a href="generic.html">References</a></li>
+							<li><a href="elements.html">Contact</a></li>
+						</ul>
+						<ul class="icons">
+							<li><a target="_blank" href="https://www.instagram.com/typhamswann/" class="icon brands fa-instagram"><span class="label">Instagram</span></a></li>
+							<li><a target ="_blank" href="https://github.com/tphamswann" class="icon brands fa-github"><span class="label">GitHub</span></a></li>
+						</ul>
+					</nav>
+
+				<!-- Main -->
+					<div id="main">
+
+						<!-- Featured Post -->
+							<article class="post featured">
+								<header class="major">
+									<h2>Methods</h2>
+									<p>This map was developed by aggregating data sources from various research papers and public data collection projects. The sources and collection methods of each data layer are explained below.</p>
+								</header>
+								<hr />
+									<header>
+										<h2>Heat</h2>
+										<p>Burney, J. (2021). Submission data for Urban Heat Disparities Project (Version V2) [Computer software]. Harvard Dataverse. https://doi.org/10.7910/DVN/1F72FB</p>
+									</header>
+									<p>Data for the heat index (units: delta T) is from Benz and Burney (2021) paper "Widespread Race and Class Disparities in Surface Urban Heat Extremes Across the United States." Heat measurements are derived from measurements that use NASA's Mod11 satellite with further processing. The metric used in the map, delta T, is the difference in extreme summer surface temperatures in urban areas compared to their rural surroundings. The full processing techniques used can be found here: <a href='https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2021EF002016'>Study</a></p>
+									<hr />
+									<header>
+										<h2>Socioeconomic</h2>
+										<p>Burney, J. (2021). Submission data for Urban Heat Disparities Project (Version V2) [Computer software]. Harvard Dataverse. https://doi.org/10.7910/DVN/1F72FB</p>
+									</header>
+									<p>Data for socioeconomic factors in the map was also aggregated by Benz and Burney. The race percentages are the percentage of people in a given census tract who responded to the American Community Survey (ACS) as identifying with each respective race recorded between 2005 and 2019. Income is reported from the 2014 ACS and represents 2014 responses adjusted for inflation. The rent is the average housing cost, inflation-adjusted, in 2014 in a given census tract. The full processing techniques used can be found here: <a href='https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2021EF002016'>Study</a></p>
+									<hr />
+									<header>
+										<h2>Dump Site</h2>
+										<p>Dump Sites. Miami-Dade-County-Open-Data-Hub. (2022, May 24). Retrieved November 28, 2022, from https://services.arcgis.com/8Pc9XBTAsYuxx9Ny/arcgis/rest/services/DumpSite_gdb/FeatureServer/0</p>
+									</header>
+									<p>Dump sites are dump sites within Miami-Dade county as of May, 2022. Data is from ArcGIS's Open Data Hub.</p>
+									<hr />
+									<header>
+										<h2>Superfund Sites</h2>
+										<p>Super Fund Site. Miami-Dade-County-Open-Data-Hub. (2022, May 24). Retrieved August 28, 2019, from https://gis-mdc.opendata.arcgis.com/datasets/super-fund-site/explore?location=25.709666%2C-80.305424%2C11.24</p>
+									</header>
+									<p>The superfund sites point layer includes all superfund sites within Miami-Dade county as of Agust 28, 2019. Data is from ArcGIS's Open Data Hub. Information on each superfund site, including the EPA's reports are found on the EPA's website: <a href='https://cumulis.epa.gov/supercpad/CurSites/srchsites.cfm'> Site</a></p>
+									<hr />
+									<header>
+										<h2>Asthma & Coronary Heart Disease</h2>
+										<p>"Adults with Asthma.” Miami-Dade Matters, Miami-Dade Matters, 2017, https://www.miamidadematters.org/indicators/index/view?indicatorId=79&localeId=414.</p>
+										<p>"Adults who Experienced Coronary Heart Disease." (2019). Miami-Dade Matters, Miami-Dade Matters. https://www.miamidadematters.org/indicators/index/view?indicatorId=2819&localeId=414</p>
+									</header>
+									<p>Heart disease and asthma data was aggregated and published by Miami-Dade Matters, an initiative launched by the Health Council of South Florida. Asthma data is from 2018, while heart disease data is from 2019. Both are collected and maintained by the Conduent Healthy Communities Institute. Their methods can be found here: <a href='https://cumulis.epa.gov/supercpad/CurSites/srchsites.cfm'> Methods</a></p>
+									<hr />
+									<header>
+										<h2>Life Expectancy</h2>
+										<p>Arias E, Escobedo LA, Kennedy J, Fu C, Cisewski J. U.S. Small-area Life Expectancy Estimates Project: Methodology and Results Summary pdf icon[PDF – 8 MB]. National Center for Health Statistics. Vital Health Stat 2(181). 2018.</p>
+									</header>
+									<p>Life expectancy data is from aggregated data by the CDC's USALEEP tool. The original source of the estimates are from Arias et al. and are for children born in census tracts between 2010 and 2015. Information on the methodology can be found here: <a href="https://www.cdc.gov/nchs/data/series/sr_02/sr02_181.pdf">Methodology</a></p>
+
+							</article>
+
+						
+					</div>
+
+
+
+				<!-- Copyright -->
+					<div id="copyright">
+						<ul><li>Site Design: <a href="https://html5up.net">HTML5 UP</a></li></ul>
+					</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/jquery.scrollex.min.js"></script>
+			<script src="assets/js/jquery.scrolly.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
