@@ -1,0 +1,62 @@
+html { 
+    background: url(background.jpg) no-repeat center center fixed; 
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    font-family: Inter;
+  }
+
+  #main{
+    background-color: white;
+    opacity:80%;
+    text-align:center;
+    margin-left:34vw;
+    margin-right:34vw;
+    margin-top: 25vh;
+  }
+
+  h1{
+    text-shadow: 0px 1px, 1px 0px, 1px 1px;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top:2rem;
+    font-weight:200;
+    font-size:3.3rem;
+    padding-bottom: 0;
+    margin-bottom:0;
+  }
+
+  p{
+    text-align: left;
+    padding-left:2rem;
+    padding-right:2rem;
+    padding-top:0.5rem;
+    padding-bottom:0rem;
+  }
+
+  button{
+    font-weight:100;
+    color:white;
+    font-family:Inter;
+    background-color:black;
+    border:none;
+    margin-top:1rem;
+    padding-left:6rem;
+    padding-right:6rem;
+    padding-top:1rem;
+    padding-bottom:1rem;
+    font-size: 1.5rem;
+    cursor:pointer;
+  }
+
+  h5{
+    padding-top:0.5rem;
+    padding-bottom:0.5rem;
+    text-decoration: underline;
+  }
+
+  a{
+    text-decoration: none;
+    color:black;
+  }

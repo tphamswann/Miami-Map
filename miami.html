@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="utf-8">
+<title>Miami-Dade Map Alpha Release</title>
+<link rel="icon" href="city-map.png">
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css" rel="stylesheet">
+<link href="styles.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+<script src='https://npmcdn.com/@turf/turf/turf.min.js'></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css" type="text/css">
+
+</head>
+<div id="geocoder" class="geocoder"></div>
+
+<body id="bod">
+  <div id="nav-menu">
+      <div id="nav-wrapper">
+
+        <h1>EJ Miami-Dade</h1>
+        <div id="social">
+        <h2 id="eh">Socioeconomic Characteristics</h2>
+        <ul>
+            <li><button onclick="switchLayer('medInc', incomeColors, incomeKey)" class="toggle" data-button-number="1"><img class="map-img" src="city-map.png"> Median Income</button></li>
+            <li><button onclick="switchLayer('rent', rentColors, rentKey)" class="toggle" data-button-number="2"><img class="map-img" src="city-map.png">Rent</button></li>
+            <li><button onclick="switchLayer('shareBlack', blackColors, blackKey)" class="toggle" data-button-number="3"><img class="map-img" src="city-map.png">Share Black</button></li>
+            <li><button onclick="switchLayer('shareWhite', whiteColors, whiteKey)" class="toggle" data-button-number="4"><img class="map-img" src="city-map.png">Share White</button></li>
+            <li><button onclick="switchLayer('shareAsian', asianColors, asianKey)" class="toggle" data-button-number="5"><img class="map-img" src="city-map.png">Share Asian</button></li>
+            <li><button onclick="switchLayer('shareHispanic', hispanicColors, hispKey)" class="toggle" data-button-number="6"><img class="map-img" src="city-map.png">Share Hispanic</button></li>
+        </ul>
+        </div>
+        <div id="environmental">
+        <h2 id="eh">Environmental Health</h2>
+        <ul>
+            <li><button onclick="switchLayer('heat', heatColors, heatKey)" class="toggle btn-highlight" data-button-number="7"><img class="map-img" src="city-map.png">Extreme Heat Risk</button></li>
+            <li><button class="toggle-2" id="sf"><img class="map-img" src="point.png">Superfund Sites</button></li> 
+            <li><button onclick="addPoints('dumps')" class="toggle-2" id="dump"><img class="map-img" src="point.png">Dump Sites</button></li> 
+            <li><p id='output'></p></li>
+
+
+        </ul>
+    </div>
+
+    <div id="public">
+      <h2 id="eh">Public Health</h2>
+      <ul>
+          <li><button onclick="switchLayer('asthma', asthmaColors, asthmaKey)" class="toggle" data-button-number="7"><img class="map-img" src="city-map.png">Asthma Rate</button></li>
+          <li><button onclick="switchLayer('heart-disease', heartColors, heartKey)" class="toggle" data-button-number="8"><img class="map-img" src="city-map.png">Heart Disease Rate</button></li>
+          <li><button onclick="switchLayer('life-expectancy', lifeColors, lifeKey)" class="toggle" data-button-number="8"><img class="map-img" src="city-map.png">Life Expectancy</button></li>
+          <li><p id='output'></p></li>
+
+
+      </ul>
+  </div>
+    </div>
+    </div>
+<div id="map"></div>
+<img src="legend-pics/heatKey.png" id="legend"/>
+
+<script>
+const dumpPopup = new mapboxgl.Popup({
+closeButton: false,
+closeOnClick: false
+});
+
+  $(document).ready(function() {
+    $(".toggle").click(function() {
+      $(".toggle").removeClass('btn-highlight')
+      $(this).addClass("btn-highlight");
+    }); // Put your code here
+  });
+  
+  $(document).ready(function() {
+  $(".toggle-2").click(function() {
+    $(this).toggleClass("btn-highlight2");
+  }); // Put your code here
+});
+
+      window.onload = function(){
+          activeLayer = 'heat';
+          activeTract = 'none'
+          sfToggled=false
+          dumpToggled=false
+          onSF = false
+          onDump = false
+          map.getCanvas().style.cursor = 'pointer';
+      }
+
+
+	mapboxgl.accessToken = 'pk.eyJ1IjoidHlwcyIsImEiOiJjbDh4YXRyZmkwNHQ1M3Bvd25vNjdrMWkyIn0.HpGJaaIrWfLkmx8MiFKX9A';
+    const map = new mapboxgl.Map({
+        container: 'map', // container ID
+        style: 'mapbox://styles/typs/cla65sw8q002315m3pcd183b8', 
+        center: [-80.18896, 25.59], 
+        zoom: 9.19, 
+        projection: 'globe',
+        attributionControl:false
+    });
+
+    mapSource = 'https://tphamswann.github.io/final-geojson/final-layers.geojson'
+  map.on('style.load', () => {
+          map.setFog({}); // Set the default atmosphere style
+         
+          map.addSource('dataLayer', {
+  'type': 'geojson',
+  'data': 'https://tphamswann.github.io/final-geojson/final-layers.geojson'
+  });
+  map.addLayer(
+  {
+  'id': 'dataLayer',
+  'type': 'fill',
+  'source': 'dataLayer',
+  'layout': {},
+  'paint': {
+
+      'fill-color': heatColors
+  }
+  },
+    "road-simple"
+
+    
+  );
+
+  map.addControl(new mapboxgl.AttributionControl({
+customAttribution: 'Developed by Ty Pham-Swann'
+}));
+
+  map.addSource('single-point', {
+'type': 'geojson',
+'data': {
+'type': 'FeatureCollection',
+'features': []
+}
+});
+ 
+map.addLayer({
+'id': 'point',
+'source': 'single-point',
+'type': 'circle',
+'paint': {
+'circle-radius': 7,
+'circle-color': 'red'
+}
+});
+
+const blankPoints = {
+
+'type': 'FeatureCollection',
+'features': []
+
+}
+
+document.getElementById('sf').addEventListener('click', addSFPoints);
+document.getElementById('dump').addEventListener('click', addDumps);
+
+function addDumps(layer){
+if (dumpToggled === false){
+  map.addSource('dumps', {
+type: 'geojson',
+data: 'https://tphamswann.github.io/GEOJSONs/dumps.geojson'
+});
+ 
+map.addLayer({
+'id': 'dumps',
+'type': 'circle',
+'source': 'dumps',
+'paint': {
+'circle-radius': 6,
+'circle-stroke-width': 2,
+'circle-color': 'green',
+'circle-stroke-color': 'white'
+}
+});
+dumpToggled = true;
+} else {
+  map.removeLayer('dumps')
+  map.removeSource('dumps')
+  dumpToggled = false;
+}
+}
+
+function addSFPoints(layer){
+if (sfToggled === false){
+  map.addSource('superfund-sites', {
+type: 'geojson',
+data: 'https://tphamswann.github.io/GEOJSONs/superfund.geojson'
+});
+ 
+map.addLayer({
+'id': 'superfund-sites',
+'type': 'circle',
+'source': 'superfund-sites',
+'paint': {
+'circle-radius': 6,
+'circle-stroke-width': 2,
+'circle-color': 'red',
+'circle-stroke-color': 'white'
+}
+});
+sfToggled = true;
+
+
+} else {
+  map.removeLayer('superfund-sites')
+  map.removeSource('superfund-sites')
+  sfToggled = false;
+}
+}
+
+// Change the cursor to a pointer when
+// the mouse is over the states layer.
+map.on('mouseenter', 'dataLayer', () => {
+  map.getCanvas().style.cursor = 'pointer';
+
+const infoPopup = new mapboxgl.Popup({closeButton: false,
+closeOnClick: false})
+  infoPopup.addTo(map);
+
+  map.on('mousemove', 'dataLayer', (e) => {
+infoPopup.trackPointer()
+switch (activeLayer) {
+case 'rent': 
+    if (e.features[0].properties.rent == -1000 ||e.features[0].properties.rent == -1){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>rent: $${e.features[0].properties.rent}</h3>
+          `)
+    }
+break;
+case 'medInc': 
+    if (e.features[0].properties.income == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML('income: $' + round(e.features[0].properties.income / 1000) + 'k')
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>income: $${round(e.features[0].properties.income / 1000, 0)}k</h3>
+          `)
+    }
+break;
+case 'shareBlack': 
+    if (e.features[0].properties['black-share'] == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(round(100 * e.features[0].properties['black-share'], 0) + '% black')
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>${round(100 * e.features[0].properties['black-share'], 0)}% black</h3>
+          `)
+    }
+break;
+case 'shareWhite': 
+    if (e.features[0].properties['white-share'] == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(round(100 * e.features[0].properties['white-share'], 0) + '% white')
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>${round(100 * e.features[0].properties['white-share'], 0)}% white</h3>
+          `)
+    }
+break;
+case 'shareAsian': 
+    if (e.features[0].properties['asian-share'] == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(round(100 * e.features[0].properties['asian-share'], 1) + '% asian')
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>${round(100 * e.features[0].properties['asian-share'], 1)}% asian</h3>
+          `)
+    }
+break;
+case 'shareHispanic': 
+    if (e.features[0].properties['hispanic-share'] == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>${round(100 * e.features[0].properties['hispanic-share'], 0)}% hispanic</h3>
+          `)
+    }
+break;
+case 'asthma': 
+    if (e.features[0].properties['ashma-rate'] == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>${round(e.features[0].properties['ashma-rate'], 0)}%</h3>
+          `)
+    }
+break;
+case 'heart-disease': 
+    if (e.features[0].properties['coronary-heart-disease'] == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(round(e.features[0].properties['coronary-heart-disease'], 0) + '%')
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>${round(e.features[0].properties['coronary-heart-disease'], 0)}%</h3>
+          `)
+    }
+break;
+case 'life-expectancy': 
+    if (e.features[0].properties['life-expectancy'] == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>${round(e.features[0].properties['life-expectancy'], 0)} years</h3>
+          `)
+    }
+break;
+case 'heat': 
+    if (e.features[0].properties['LST_Day'] == -1000){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+          
+    } else{
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>Heat Index: ${round(e.features[0].properties['LST_Day'], 1)}</h3>
+          `)
+    }
+break;
+default:
+    case 'rent': 
+    if (e.features[0].properties.rent == -1000 ||e.features[0].properties.rent == -1){
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3> Insufficient Data </h3>
+          `)
+    } else{
+      infoPopup.setHTML(
+        `<p>Tract ${e.features[0].properties['TRACTCE']}<br>Miami-Dade County, Florida</p>
+          <h3>Rent: $${e.features[0].properties.rent}</h3>
+          `)
+    }
+break;
+}
+});
+
+map.on('mouseleave', 'dataLayer', () => {
+map.getCanvas().style.cursor = '';
+infoPopup.remove()
+});
+});
+
+selectedTract = 'none'
+map.on('click', 'dataLayer', (e) => { 
+  var mapLayer = map.getLayer('outline');
+
+  if(typeof mapLayer !== 'undefined') {
+    map.removeLayer('outline')
+    map.removeLayer('outline2')
+    map.removeSource('outline')
+    map.getSource('single-point').setData(blankPoints);
+    removeInfo()
+    activeTract = 'none'
+    }
+
+
+
+if (selectedTract !== e.features[0].properties['TRACTCE']){
+  activeTract = e.features[0].properties['TRACTCE']
+map.addSource('outline', {
+'type': 'geojson',
+'data': {
+'type': 'Feature',
+'geometry': {
+'type': 'Polygon',
+'coordinates': e.features[0].geometry.coordinates
+}
+}
+});
+
+map.addLayer({
+'id': 'outline2',
+'type': 'line',
+'source': 'outline',
+'layout': {},
+'paint': {
+'line-color': '#fff',
+'line-width': 6
+}
+}, 'point');
+
+map.addLayer({
+'id': 'outline',
+'type': 'line',
+'source': 'outline',
+'layout': {},
+'paint': {
+'line-color': '#000',
+'line-width': 3
+}
+}, 'point');
+
+//Fancy Zoom code that actually looks garbage
+
+if (map.getZoom() < 10){
+var bounds = e.features[0].geometry.coordinates;
+tractPolygon = turf.polygon(bounds)
+mbVersion = new mapboxgl.LngLat(turf.centerOfMass(tractPolygon).geometry.coordinates[0]+ 0, turf.centerOfMass(tractPolygon).geometry.coordinates[1])
+
+map.flyTo({
+        center: mbVersion,
+        zoom: 12
+      })
+    } 
+
+selectedData = e.features[0].properties
+selectedTract = e.features[0].properties['TRACTCE']
+checkCurrent()
+
+  addInfo(selectedTract, tractInfo, getInfo()[0], getInfo()[1], getInfo()[2], getInfo()[3], getInfo()[4]);
+
+
+} else{
+  selectedTract = 'none'
+}
+
+});
+});
+
+const popup = new mapboxgl.Popup({
+closeButton: false,
+closeOnClick: false
+});
+
+const geocoder = new MapboxGeocoder({
+accessToken: mapboxgl.accessToken,
+mapboxgl: mapboxgl,
+countries:'us',
+bbox:[-80.885938,25.092229,-80.097988,25.980250],
+marker: false,//{
+//color: 'red'
+//},
+placeholder: 'Search an address',
+zoom:12
+});
+ 
+document.getElementById('geocoder').appendChild(geocoder.onAdd(map));
+
+geocoder.on('results', function(event){
+  map.flyTo({
+        center: [-80.18896, 25.59],
+        zoom: 9.19
+      })
+})
+
+geocoder.on('result', function(e) {
+  map.fire('click', 
+{latlng: e.result.center,
+  point: map.project(e.result.center)
+  
+})
+map.getSource('single-point').setData(e.result.geometry);
+}
+);
+
+function addInfo(tract, layer, image, desc, desc2, scale, min){
+
+  scaleValue = (2 + ((10.75-2) * ((layer - min) / scale)))
+  if (scaleValue > 10.75){
+    scaleValue = 10.75
+  }
+  if (scaleValue < 2){
+    scaleValue = 2
+  }
+
+  scaleToH = scaleValue.toString() + 'rem'
+
+  if (layer === -100000 || layer === -1 || layer === -1000){
+  const bar = document.createElement('div')
+  
+  bar.className = 'info-bar';
+  bar.id = "info-bar-id"
+  const bodyEl = document.getElementById('bod');
+  
+  bod.appendChild(bar)
+  bar.setHTML(
+    `<p>Tract ${tract}</p>
+    <p> Miami-Dade County, Fl
+      <div id="descr">
+    <h3 id="insuff"><br><br>Insufficient Data<h3>
+      </div>
+      `
+  )
+    } else {
+      const bar = document.createElement('div')
+  bar.className = 'info-bar';
+  bar.id = "info-bar-id"
+  const bodyEl = document.getElementById('bod');
+  bod.appendChild(bar)
+  bar.setHTML(
+    `<p>Tract ${tract}</p>
+    <p> Miami-Dade County, Fl
+      <div id="descr">
+    <img src='${image}'>
+    <img id="arrow-pic" 
+    style='width:1.3rem;
+    display:block;
+    position: relative;
+    left:${scaleToH};
+    padding-bottom:0;
+    margin-bottom:0;'
+    src='info-pics/arrow.png'/>
+    <h3>${desc}${layer}${desc2}<h3>
+      </div>
+      `
+  )
+  //document.getElementById("arrow-pic").style.left = scaleToH;
+
+    }
+
+}
+
+function removeInfo(){
+const barRemove = document.getElementById("info-bar-id")
+barRemove.remove()
+}
+
+    function switchLayer(layer, colorArray, legend) {
+      document.getElementById('legend').src = legend
+      activeLayer = layer;
+        map.setPaintProperty('dataLayer', 'fill-color', colorArray)
+      switchTab()
+
+    }
+
+    function switchTab(){
+    removeInfo()
+    checkCurrent()
+      addInfo(selectedTract, tractInfo, getInfo()[0], getInfo()[1], getInfo()[2], getInfo()[3], getInfo()[4]);
+  }
+
+rentColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'rent'],
+    -1000,
+    '#b6b5aa',
+    600,
+    '#ffffcc',
+    990,
+    '#c7e9b4',
+    1200,
+    '#7ecdbb',
+    1300,
+    '#40b7c4',
+    1950,
+    '#2d81b9',
+    2800,
+    '#253393',
+    ]
+
+    heatColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'LST_Day'],
+    -1000,
+    '#b6b5aa',
+    -1.1004644115,
+    '#3288bd',
+    0.39,
+    '#66c2a5',
+    1.84,
+    '#abdda4',
+    3.38,
+    '#e6f598',
+    4.88,
+    '#ffffbf',
+    6.38,
+    '#fee08b',
+    7.87,
+    '#fdae61',
+    9.36,
+    '#f46d43',
+    10.85697326,
+    '#d53e4f'
+    ]
+
+    asthmaColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'ashma-rate'],
+    -1000,
+    '#b6b5aa',
+    1,
+    '#ffe7db',
+    3,
+    '#fde0dd',
+    5,
+    '#fcc5c0',
+    6.5,
+    '#fa9eb5',
+    7.6,
+    '#f769a2',
+    9,
+    '#dd3698',
+    10,
+    '#ad017c',
+    11,
+    '#790177',
+    14,
+    '#49006a'
+    ]
+
+    incomeColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'income'],
+    -1000,
+    '#b6b5aa',
+    13000,
+    '#b4182b',
+    17000,
+    '#ef8961',
+    22000,
+    '#fddcc9',
+    28000,
+    '#f8f6e8',
+    37000,
+    '#d1e5f0',
+    50000,
+    '#68a9cf',
+    72000,
+    '#2166ab'
+    ]
+
+    asianColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'asian-share'],
+    -1000,
+    '#b6b5aa',
+    0,
+    '#fcf0c0',
+    0.0001,
+    '#fdc68b',
+    0.007,
+    '#fb8a65',
+    0.015,
+    '#e45361',
+    0.04,
+    '#ad347c',
+    0.05,
+    '#6b1f7a',
+    0.07,
+    '#2c115f'
+    ]
+
+    hispanicColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'hispanic-share'],
+    -1000,
+    '#b6b5aa',
+    0.1,
+    '#fcf0c0',
+    0.25,
+    '#fdc68b',
+    0.37,
+    '#fb8a65',
+    0.65,
+    '#e45361',
+    0.89,
+    '#ad347c',
+    0.94,
+    '#6b1f7a',
+    1,
+    '#2c115f'
+    ]
+
+    blackColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'black-share'],
+    -1000,
+    '#b6b5aa',
+    0,
+    '#fcf0c0',
+    0.02,
+    '#fdc68b',
+    0.1,
+    '#fb8a65',
+    0.2,
+    '#e45361',
+    0.75,
+    '#ad347c',
+    0.85,
+    '#6b1f7a',
+    0.98,
+    '#2c115f'
+    ]
+
+    whiteColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'white-share'],
+    -1000,
+    '#b6b5aa',
+    0,
+    '#fcf0c0',
+    0.03,
+    '#fdc68b',
+    0.07,
+    '#fb8a65',
+    0.1,
+    '#e45361',
+    0.35,
+    '#ad347c',
+    0.6,
+    '#6b1f7a',
+    0.85,
+    '#2c115f'
+    ]
+
+    heartColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'coronary-heart-disease'],
+    -1000,
+    '#b6b5aa',
+    0,
+    '#f7fcfd',
+    2.5,
+    '#e1edf4',
+    5,
+    '#c1d4e7',
+    6,
+    '#8c96c6',
+    7,
+    '#8c6cb2',
+    8.5,
+    '#89429e',
+    10,
+    '#6f016b'
+    ]
+
+    lifeColors =  [
+    'interpolate',
+    ['linear'],
+    ['get', 'life-expectancy'],
+    -1000,
+    '#b6b5aa',
+    70.8,
+    '#d73027',
+    76.03,
+    '#fc8d59',
+    80,
+    '#fee090',
+    81.47,
+    '#ffffbf',
+    82.7,
+    '#e0f3f8',
+    85.15,
+    '#91bfdb',
+    89.6,
+    '#4575b4'
+    ]
+
+const incomeImage = 'info-pics/income.png'
+const rentImage = 'info-pics/rent.png'
+const blackImage = 'info-pics/black.png'
+const whiteImage = 'info-pics/white.png'
+const asianImage = 'info-pics/asian.png'
+const hispImage = 'info-pics/hisp.png'
+const heatImage = 'info-pics/heat.png'
+const cardiacImage = 'info-pics/cardiac.png'
+const lifeImage = 'info-pics/life.png'
+const asthmaImage = 'info-pics/asthma.png'
+const arrowImage = 'info-pics/arrow.png'
+
+const incomeScale = 59
+const rentScale = 2200
+const blackScale = 98
+const whiteScale = 85
+const asianScale = 7
+const hispScale = 90
+const heatScale = 12
+const cardiacScale = 10
+const lifeScale = 18.8
+const asthmaScale = 13
+
+const incomeMin = 13
+const rentMin = 600
+const blackMin = 0
+const whiteMin = 0
+const asianMin = 0
+const hispMin = 10
+const heatMin = -1.1
+const cardiacMin = 0
+const lifeMin = 70.8
+const asthmaMin = 1
+
+const incomeParam = [incomeImage, 'Income: ', 'k', incomeScale, incomeMin]
+const rentParam = [rentImage, 'Rent: $', '', rentScale, rentMin]
+const blackParam = [blackImage, 'Share Black: ', '%', blackScale, blackMin]
+const whiteParam = [whiteImage, 'Share White: ', '%', whiteScale, whiteMin]
+const asianParam = [asianImage, 'Share Asian: ', '%', asianScale, asianMin]
+const hispParam = [hispImage, 'Share Hispanic: ', '%', hispScale, hispMin]
+const heatParam = [heatImage, 'Heat Index: ', '', heatScale, heatMin]
+const cardiacParam = [cardiacImage, 'Heart Disease Rate: ', '%', cardiacScale, cardiacMin]
+const lifeParam = [lifeImage, 'Life Expectancy: ', ' years', lifeScale, lifeMin]
+const asthmaParam = [asthmaImage, 'Asthma Rate: ', '%', asthmaScale, asthmaMin]
+
+incomeKey = 'legend-pics/incomeKey.png'
+rentKey = 'legend-pics/rentKey.png'
+blackKey = 'legend-pics/blackKey.png'
+whiteKey = 'legend-pics/whiteKey.png'
+asianKey = 'legend-pics/asianKey.png'
+hispKey = 'legend-pics/hispKey.png'
+heatKey = 'legend-pics/heatKey.png'
+lifeKey = 'legend-pics/lifeKey.png'
+asthmaKey = 'legend-pics/asthmaKey.png'
+heartKey = 'legend-pics/heartKey.png'
+
+ 
+function getInfo(){
+switch (activeLayer) {
+case 'rent': 
+return rentParam;
+break;
+case 'medInc': 
+return incomeParam;
+break;
+case 'shareBlack': 
+return blackParam;
+break;
+case 'shareWhite': 
+return whiteParam;
+break;
+case 'shareAsian': 
+return asianParam;
+break;
+case 'shareHispanic': 
+return hispParam;
+break;
+case 'asthma': 
+return asthmaParam;
+break;
+case 'heart-disease': 
+return cardiacParam;
+break;
+case 'life-expectancy': 
+return lifeParam
+break;
+case 'heat': 
+return heatParam;
+break;
+default:
+return heatParam;  
+break;  
+}
+  }
+
+  function round(value, precision) {
+    var multiplier = Math.pow(10, precision || 0);
+    return Math.round(value * multiplier) / multiplier;
+  }
+
+  function checkCurrent(){
+switch (activeLayer) {
+case 'rent': 
+tractInfo = selectedData.rent;
+break;
+case 'medInc': 
+tractInfo = round(selectedData.income / 1000, 0)
+break;
+case 'shareBlack': 
+tractInfo = round(100 * selectedData['black-share'], 0)
+break;
+case 'shareWhite': 
+tractInfo = round(100 * selectedData['white-share'], 0)
+break;
+case 'shareAsian': 
+tractInfo = round(100 * selectedData['white-share'], 1)
+break;
+case 'shareHispanic': 
+tractInfo = round(100 * selectedData['hispanic-share'], 0)
+break;
+case 'asthma': 
+tractInfo = round(selectedData['ashma-rate'], 0);
+break;
+case 'heart-disease': 
+tractInfo = round(selectedData['coronary-heart-disease'], 0);
+break;
+case 'life-expectancy': 
+tractInfo = round(selectedData['life-expectancy'], 0);
+break;
+case 'heat': 
+tractInfo = round(selectedData['LST_Day'], 1);
+break;
+default:
+tractInfo = round(selectedData['LST_Day'], 1);
+break;  
+
+}
+}
+  
+
+
+</script>
+
+</body>
+</html>
