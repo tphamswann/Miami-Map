@@ -280,7 +280,39 @@ li {
     width:19rem;
   }
 
+  #logo-white{
+    position:absolute;
+    left:17.5rem;
+    bottom:2rem;
+    width:5rem;
+  }
+
+
+  #logo{
+    position:absolute;
+    left:0.25rem;
+    top:0.4rem;
+    width:3rem;
+  }
+  @media only screen and (max-width: 1366px) {
+    #logo{
+        position:absolute;
+        left:0.25rem;
+        top:0.5rem;
+        width:2rem;
+      }
+      h1{
+        color: #00A9D8;
+        padding-left:3rem;
+        font-size:1.2rem;
+        }
+  }
+
   @media only screen and (max-width: 1137px) {
+      #logo{
+          display:none;
+      }
+      
     .toggle{
         width:12.5rem;
         font-size: 0.7rem;
