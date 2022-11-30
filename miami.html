@@ -213,6 +213,7 @@ sfToggled = true;
 }
 }
 
+
 // Change the cursor to a pointer when
 // the mouse is over the states layer.
 map.on('mouseenter', 'dataLayer', () => {
@@ -465,6 +466,8 @@ const popup = new mapboxgl.Popup({
 closeButton: false,
 closeOnClick: false
 });
+	
+map.addControl(new mapboxgl.NavigationControl());
 
 const geocoder = new MapboxGeocoder({
 accessToken: mapboxgl.accessToken,
