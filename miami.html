@@ -20,7 +20,6 @@
 <body id="bod">
   <div id="nav-menu">
       <div id="nav-wrapper">
-
         <h1>EJ Miami-Dade</h1>
         <div id="social">
         <h2 id="eh">Socioeconomic Characteristics</h2>
@@ -122,9 +121,7 @@ closeOnClick: false
       'fill-color': heatColors
   }
   },
-    "road-simple"
-
-    
+    "waterway"
   );
 
   map.addControl(new mapboxgl.AttributionControl({
@@ -212,8 +209,10 @@ sfToggled = true;
   sfToggled = false;
 }
 }
-
-
+map.addControl(new mapboxgl.NavigationControl({
+  showCompass: false
+}
+));
 // Change the cursor to a pointer when
 // the mouse is over the states layer.
 map.on('mouseenter', 'dataLayer', () => {
@@ -466,10 +465,6 @@ const popup = new mapboxgl.Popup({
 closeButton: false,
 closeOnClick: false
 });
-	
-map.addControl(new mapboxgl.NavigationControl({
-  showCompass: false
-}));
 
 const geocoder = new MapboxGeocoder({
 accessToken: mapboxgl.accessToken,
@@ -946,6 +941,5 @@ break;
 
 
 </script>
-
 </body>
 </html>
